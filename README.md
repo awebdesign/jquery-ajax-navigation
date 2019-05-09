@@ -1,15 +1,14 @@
 # jquery-ajax-navigation
 
-data-ajax-nav="modal|confirm|link" -> default link
+<strong>data-ajax-nav="modal|modal-save|link"</strong> -> default link<br/>
+the difference between modal and modal-save is that, modal save has a "Save" button listed in the modal windows which automatically submits the first form which is present in the modal box
 <br/>
-data-ajax-response="html|json" -> default json
+<strong>data-ajax-confirm="Your message here"</strong> -> default is "Are you sure?"
 <br/>
+<strong>data-ajax-response="html|json"</strong> -> default json
+<br/>
+<strong>data-ajax-container=".class|#id"</strong> -> just for link, starts with # by default if . or # is not defined
 
-data-ajax-container=".class|#id" -> just for link, starts with # by default if . or # is not defined
 <br/>
-
-data-ajax-confirm="Your message here"
-<br/>
-
-data-ajax-push="true|false" -> default false
+<strong>data-ajax-push="true|false"</strong> -> default false
 <br/>

@@ -28,14 +28,20 @@ An.Options = {
 //no overide allowed
 An.Values = {
     el: null,
+    nodeName: null,
     action: null,
     method: 'GET',
     href: null,
-    title: null
+    title: null,
+    confirmation: false //if this thing is true then it can pass the confirm modal box
 };
 
 /* Ajax Navigation Methods START */
 An.GetDataset = function (el) {
+    if(!el.attr('id')) {
+        el.attr('id', An.CreateId()); //if the element has no ID, auto assign one
+    }
+
     var options = $.extend({}, An.Options, An.Values);
 
     $.each(options, function(option, defaultOptionValue){
@@ -77,6 +83,8 @@ An.GetDataset = function (el) {
                     dataValue = (dataValue && dataValue !== 'false') ? true : false;
                     break;
                 case 'callback':
+                case 'confirmation':
+                case 'confirm':
                     break;
                 case 'title':
                     dataValue = el.attr(option);
@@ -84,6 +92,9 @@ An.GetDataset = function (el) {
                         dataValue = el.text();
                     }
                     break;
+                case 'nodeName':
+                    dataValue = (el.attr('href') != 'undefined') ? 'link' : 'form';
+                break
                 default:
                     dataValue = el.attr(option);
             }
@@ -96,13 +107,18 @@ An.GetDataset = function (el) {
     return options;
 }
 
-An.Load = function(el) {
+An.Load = function (el) {
     var options = An.GetDataset(el);
     var url = options.href ? options.href : options.action;
+    
+    if(options.confirm && options.confirmation) {
+        An.CreateModal(options, {content: options.confirm});
+        return false;
+    }
 
     //if is a form serialize fields
     var formData = null;
-    if(options.el.attr('href') === undefined) { //TODO: add this in the constructor!!!
+    if(options.nodeName == 'form') { //TODO: add this in the constructor!!!
         formData = new FormData();
         var hasFiles = false;
             options.el.find('input, select, textarea').each(function(){
@@ -135,25 +151,25 @@ An.Load = function(el) {
         headers: {
             'Ajax-Navigation': true,
         },
-        beforeSend: function(){
+        beforeSend: function (){
             //append file uploading bar
             if(hasFiles) {
                 $('.inner').css('width', '300px');
                 $('.inner span').append('<div id="progress"><span class="pbar ui-progressbar ui-widget ui-widget-content ui-corner-all" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="ui-progressbar-value ui-widget-header ui-corner-left" style="display: none; width: 0%;"></div></span><span class="percent"><b class="loadingProcent">0%</b></span><span class="elapsed">Start</span></div>');
             }
         },
-        success: function(response) {
+        success: function (response) {
             //loadingScreenStop();
             An.ProcessOutput(options, response);
         },
-        fail: function(xhr, status, error) {
+        fail: function (xhr, status, error) {
             //loadingScreenStop();
 
             if(xhr.responseText) {
               An.ProcessOutput(options, {alert: xhr.responseText});
             }
         },
-        xhr: function() {  // custom xhr
+        xhr: function () {  // custom xhr
             loadingScreenStop();
             var xhr = $.ajaxSettings.xhr();
             if(xhr.upload){ // check if upload property exists
@@ -175,8 +191,7 @@ An.Load = function(el) {
     });
 }
 
-var tabIndex = 0;
-An.ProcessOutput = function(options, response)
+An.ProcessOutput = function (options, response)
 {
     if(options.response == 'json') {
         if(response.redirect){
@@ -192,41 +207,13 @@ An.ProcessOutput = function(options, response)
     //LOAD CONTENT
     if(response.content) {
         //TO DO
-        if(options.el.attr('href') === undefined) {
+        if(options.nodeName == 'form') {
             $(options.el).validator('update');
             //console.log('TEST UPDATE VALIDATION');
         }
 
         if(options.nav == 'modal' || options.nav == 'modal-save') {
-            //close old opened modal
-            //$('.an-modal').modal('hide');
-            var modalId = Math.random().toString(36).substring(7);
-            console.log(modalId);
-
-            //create modal
-            html = '<div class="modal fade an-modal" id="' + modalId + '" tabindex="' + tabIndex + '" role="dialog" aria-labelledby="An-modalTitle" aria-hidden="true">';
-                html += '<div class="modal-dialog" role="document" style="width: 50%;">';
-                    html += '<div class="modal-content">';
-                    if(options.title) {
-                        html += '<div class="modal-header">';
-                            html += '<button type="button" class="close" data-dismiss="modal">&times;</button>';
-                            html += '<h4 class="modal-title">' + options.title + '</h4>';
-                        html += '</div>';
-                    }
-                    html += '<div class="modal-body">' + response.content + '</div>';
-                    if(options.nav == 'modal-save') {
-                        html += '<div class="modal-footer">';
-                        html += '<button type="button" class="btn btn-secondary" data-dismiss="modal" style="margin-right: 7px;"><i class="fa fa-reply"></i></button>';
-                        html += '<button type="button" class="btn btn-primary" name="Save" data-ajax-modal-save><i class="fa fa-save"></i></button>';
-                        html += '</div>';
-                    }
-                    html += '</div>';
-                html += '</div>';
-            html += '</div>';
-
-            $('body').prepend(html);
-            $('#' + modalId).modal();
-            tabIndex++;
+            An.CreateModal(options, response);
         } else {
             $(options.container).html(response.content);
 
@@ -263,7 +250,51 @@ An.ProcessOutput = function(options, response)
     }
 }
 
-An.Push = function(options) {
+An.Confirm = function (elementId) {    
+    var targetEl = $(elementId);
+    targetEl.attr('data-ajax-confirmation', true);
+    targetEl.trigger('click');
+    return false
+}
+
+var tabIndex = 0;
+An.CreateModal = function (options, response) {
+    //close old opened modal
+    //$('.an-modal').modal('hide');
+    var modalId = An.CreateId();
+
+    //create modal
+    html = '<div class="modal fade an-modal" id="' + modalId + '" tabindex="' + tabIndex + '" role="dialog" aria-labelledby="An-modalTitle" aria-hidden="true">';
+        html += '<div class="modal-dialog" role="document" style="width: 50%;">';
+            html += '<div class="modal-content">';
+            if(options.title) {
+                html += '<div class="modal-header">';
+                    html += '<button type="button" class="close" data-dismiss="modal">&times;</button>';
+                    html += '<h4 class="modal-title">' + options.title + '</h4>';
+                html += '</div>';
+            }
+            html += '<div class="modal-body">' + response.content + '</div>';
+            if(options.confirm == 'confirm') {
+                html += '<div class="modal-footer">';
+                html += '<button type="button" class="btn btn-secondary" data-dismiss="modal" style="margin-right: 7px;"><i class="fa fa-reply"></i></button>';
+                html += '<button type="button" class="btn btn-primary" name="Confirm" data-ajax-confirm="#' + options.el.attr('id') + '"><i class="fa  fa-check"></i></button>';
+                html += '</div>';
+            } else if(options.nav == 'modal-save') {
+                html += '<div class="modal-footer">';
+                html += '<button type="button" class="btn btn-secondary" data-dismiss="modal" style="margin-right: 7px;"><i class="fa fa-reply"></i></button>';
+                html += '<button type="button" class="btn btn-primary" name="Save" data-ajax-modal-save><i class="fa fa-save"></i></button>';
+                html += '</div>';
+            }
+            html += '</div>';
+        html += '</div>';
+    html += '</div>';
+
+    $('body').prepend(html);
+    $('#' + modalId).modal();
+    tabIndex++;
+}
+
+An.Push = function (options) {
     if(options.push) {
         var currentState = history.state;
         var newState =
@@ -276,6 +307,10 @@ An.Push = function(options) {
             document.title = options.title;
         }
     }
+}
+
+An.CreateId = function () {
+    return 'An-' + Math.random().toString(36).substring(7);
 }
 
 An.getFunction = function (code, argNames) {
@@ -293,7 +328,7 @@ An.getFunction = function (code, argNames) {
 /* Ajax Navigation Methods END */
 
 /* Ajax Navigation Helpers START */
-$(window).bind('popstate', function(){
+$(window).bind('popstate', function (){
     window.location.href = window.location.href;
 });
 
@@ -301,7 +336,7 @@ $(window).bind('popstate', function(){
 $(document).on('show.bs.modal', '.modal', function () {
     var zIndex = 1040 + (10 * $('.modal:visible').length);
     $(this).css('z-index', zIndex);
-    setTimeout(function() {
+    setTimeout(function () {
         $('.modal-backdrop').not('.modal-stack').css('z-index', zIndex - 1).addClass('modal-stack');
     }, 0);
 });
@@ -343,8 +378,8 @@ $(document).ready(function () {
 /* Mutations Listeners START */
 An.Mutations.AjaxNav = {
     Selector: '[data-ajax-nav]',
-    Apply: function(elements) {
-        $.each(elements, function(){
+    Apply: function (elements) {
+        $.each(elements, function (){
             if ($(this).attr('href') === undefined) {
                 $(this).validator({
                     feedback: {
@@ -358,7 +393,7 @@ An.Mutations.AjaxNav = {
                     }
                 });
             } else {
-                $(this).click(function(e) {
+                $(this).click(function (e) {
                     e.preventDefault();
                     An.Load($(this));
                 });
@@ -369,11 +404,22 @@ An.Mutations.AjaxNav = {
 
 An.Mutations.AjaxModalSave = {
     Selector: '[data-ajax-modal-save]',
-    Apply: function(elements) {
-        elements.click(function(e) {
+    Apply: function (elements) {
+        elements.click(function (e) {
             e.preventDefault();
             $(this).parent().parent().find('form').submit();
         });
     },
 };
+
+An.Mutations.AjaxConfirm = {
+    Selector: '[data-ajax-confirm]',
+    Apply: function (elements) {
+        elements.click(function (e) {
+            e.preventDefault();
+            An.Confirm($(this).data('ajax-confirm'));
+        });
+    },
+};
+
 /* Mutations Listeners END */

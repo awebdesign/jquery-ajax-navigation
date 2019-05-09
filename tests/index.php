@@ -73,6 +73,8 @@
 <a href="content.php?response=html&form=true" data-ajax-nav="modal-save" data-ajax-response="html" data-ajax-push>AJAX NAV (HTML) MODAL SAVE STATE</a>
 |
 <a href="content.php?form2=true" data-ajax-nav="modal-save">(json) - MODAL SAVE - continue with modal</a>
+<br/><br/>
+<a href="content.php?response=html" data-ajax-nav data-ajax-confirm data-ajax-response="html" data-ajax-container="container-custom">Confirm</a>
 
 <br/><br/>
 <form method='post' action='content.php?form2=true' data-ajax-nav="modal-save">
