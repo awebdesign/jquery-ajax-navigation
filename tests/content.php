@@ -24,22 +24,22 @@ if(isset($_GET['alert'])) {
 }
 
 if(isset($_GET['link-in-link'])) {
-    $data['content'] = '<a href="/testing/init_content.php" data-ajax-nav>AJAX NAV (json)- default container</a>';
+    $data['content'] = '<a href="content.php" data-ajax-nav>AJAX NAV (json)- default container</a>';
 }
 
 if(isset($_GET['form'])) {
-    $data['content'] = "<form method='post' id='form' action='/testing/init_content.php?form=true' data-ajax-nav data-ajax-container='form'><input name='test_field' value='" . time() . "' /><input type='submit' value='Submit field'></form>";
+    $data['content'] = "<form method='post' id='form' action='content.php?form=true' data-ajax-nav data-ajax-container='form'><input name='test_field' value='" . time() . "' /><input type='submit' value='Submit field'></form>";
 }
 
 if(isset($_GET['form2'])) {
-    $data['content'] = "<form method='post' id='form2' action='/testing/init_content.php?form2=true' data-ajax-nav data-ajax-container='form2' >
+    $data['content'] = "<form method='post' id='form2' action='content.php?form2=true' data-ajax-nav data-ajax-container='form2' >
     <div class='itlk-form-control large form-group has-feedback'>
     <label for='password' class='itlk-label'>pass required</label>
-    <input class='itlk-input login-input form-control' type='password' id='password' name='password' required data-required-error='Camp obligatoriu' />
+    <input class='itlk-input login-input form-control' type='password' id='password' name='password' required data-required-error='Password is required' />
     <span class='fa form-control-feedback' aria-hidden='true'></span>
     <div class='help-block with-errors'></div>
     </div>
-    <br/><br/><a href='/testing/init_content.php?response=html' data-ajax-nav='modal' data-ajax-response='html'>AJAX NAV (HTML) - NEW MODAL</a></form>";
+    <br/><br/><a href='content.php?response=html' data-ajax-nav='modal' data-ajax-response='html'>AJAX NAV (HTML) - NEW MODAL</a></form>";
 }
 
 if($_POST) {
