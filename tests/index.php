@@ -24,7 +24,7 @@
 /**
  * Ajax navigation
  *
- * data-ajax-nav="modal|confirm|link" -> default link
+ * data-ajax-nav="modal|modal-save|link" -> default link
  * data-ajax-response="html|json" -> default json
  * data-ajax-container=".class|#id" -> just for link, starts with # by default if . or # is not defined
  * data-ajax-confirm="Your message here"
@@ -75,6 +75,8 @@
 <a href="content.php?form2=true" data-ajax-nav="modal-save">(json) - MODAL SAVE - continue with modal</a>
 <br/><br/>
 <a href="content.php?response=html" data-ajax-nav data-ajax-confirm data-ajax-response="html" data-ajax-container="container-custom">Confirm</a>
+|
+<a href="content.php?response=html" data-ajax-nav data-ajax-confirm="Test message" data-ajax-response="html" data-ajax-container="container-custom">Confirm custom message</a>
 
 <br/><br/>
 <form method='post' action='content.php?form2=true' data-ajax-nav="modal-save">
