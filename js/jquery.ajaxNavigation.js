@@ -106,7 +106,7 @@ An.GetDataset = function (el) {
                     }
                     break;
                 case 'nodeName':
-                    dataValue = (el.attr('href') != 'undefined') ? 'link' : 'form';
+                    dataValue = (typeof el.attr('href') != 'undefined') ? 'link' : 'form';
                 break
                 default:
                     dataValue = el.attr(option);
@@ -263,12 +263,12 @@ An.ProcessOutput = function (options, response)
 
     //call calback function if finish
     if(options.callback) {
-        An.getFunction(options.callback, []).apply(options.el, arguments);
+        An.getFunction(options.callback, [options, response]).apply(options.el, arguments);
     }
 }
 
 An.Confirm = function (el) {
-    console.log('An.Confirm');
+    //console.log('An.Confirm');
     var options = An.GetDataset(el);
     el.removeAttr('data-ajax-confirmed'); //in case this el was confirmed previously ask again for permission
     An.CreateModal(options, {content: options.confirm});
@@ -407,7 +407,7 @@ An.Mutations.AjaxNav = {
     Selector: '[data-ajax-nav]',
     Apply: function (elements) {
         $.each(elements, function (){
-            if ($(this).attr('href') === undefined) {
+            if (typeof $(this).attr('href') === undefined) {
                 $(this).validator({
                     feedback: {
                         success: 'fa-check',
@@ -451,5 +451,4 @@ An.Mutations.AjaxConfirm = {
         });
     },
 };
-
 /* Mutations Listeners END */
