@@ -15,6 +15,10 @@ $data = [
 
 $response = isset($_GET['response']) ? $_GET['response'] : 'json';
 
+if(isset($_GET['delay'])) {
+    sleep((int) $_GET['delay']);
+}
+
 if(isset($_GET['redirect'])) {
     $data['redirect'] = "http://google.ro";
 }

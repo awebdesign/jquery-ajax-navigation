@@ -13,6 +13,13 @@
  * data-ajax-push="true|false" -> default false
  */
 
+/* Cross-Site Request Forgery (CSRF) For Laravel Use */
+$.ajaxSetup({
+    headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    }
+});
+
 if (window.An == undefined) window.An = {};
 if (window.An.Mutations == undefined) window.An.Mutations = {};
 
@@ -22,7 +29,7 @@ An.Options = {
     container: '#container',
     confirm: 'Are you sure?',
     push: false,
-    callback: null,
+    callback: null
 };
 
 //no overide allowed
@@ -39,6 +46,20 @@ An.Values = {
 };
 
 /* Ajax Navigation Methods START */
+An.Loader = function (el) {
+    $body = $(el);    
+    $(document).on({    
+        ajaxStart: function() { 
+            $body.append('<div class="overlay"></div>')
+            $body.addClass("loading");
+        },
+        ajaxStop: function() {
+            $body.find('.overlay').remove();
+            $body.removeClass("loading"); 
+        }    
+    });
+}
+
 An.GetDataset = function (el) {
     if(!el.attr('data-ajax-id')) {
         el.attr('data-ajax-id', An.CreateId()); //if the element has no ID, auto assign one
@@ -372,6 +393,8 @@ $(document).on('show.bs.modal', '.modal', function () {
 
 /* Mutations Observer START */
 $(document).ready(function () {
+    An.Loader('body');
+
     for (var propertyName in An.Mutations) {
         var $elements = $(An.Mutations[propertyName].Selector);
         if ($elements.length > 0) {
