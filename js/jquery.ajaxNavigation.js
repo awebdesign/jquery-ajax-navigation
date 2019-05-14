@@ -263,7 +263,8 @@ An.ProcessOutput = function (options, response)
 
     //call calback function if finish
     if(options.callback) {
-        An.getFunction(options.callback, [options, response]).apply(options.el, arguments);
+        var arguments = [options, response];
+        An.getFunction(options.callback, ["xhr"]).apply(options.el, arguments);
     }
 }
 
@@ -407,7 +408,7 @@ An.Mutations.AjaxNav = {
     Selector: '[data-ajax-nav]',
     Apply: function (elements) {
         $.each(elements, function (){
-            if (typeof $(this).attr('href') === undefined) {
+            if ($(this).attr('href') === undefined) {
                 $(this).validator({
                     feedback: {
                         success: 'fa-check',

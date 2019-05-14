@@ -45,7 +45,9 @@
 |
 <a href="content.php?link-in-link=true" data-ajax-nav>AJAX NAV (json)- LINK IN LINK</a>
 |
-<a href="content.php" data-ajax-nav data-ajax-callback="testingCallback(this)">AJAX NAV (json)- CALLBACK</a>
+<a href="content.php" data-ajax-nav data-ajax-callback="testingCallback">AJAX NAV (json)- CALLBACK</a>
+|
+<a href="content.php" data-ajax-nav data-ajax-callback="testingCallback2(123)">AJAX NAV (json)- CALLBACK 2</a>
 
 <br/><br/>
 <a href="content.php?response=html" data-ajax-nav data-ajax-response="html">AJAX NAV (HTML)- default container</a>
@@ -98,10 +100,19 @@
 <div id="container-custom">default content here</div>
 
 <script>
-    function testingCallback(el) {
+    function testingCallback(options, response) {
+        var el = $(this); 
+        console.log(options);
+        console.log(response);
+        console.log(el);  
         alert('callback function: ' + $(el).data('ajax-callback'));
     }
-</script>
+    function testingCallback2(val) {
+        console.log(el); 
+        var el = $(this); 
+        alert('callback function 2: ' + $(el).data('ajax-callback') + ' : ' + val);
+    }
+</script> 
 
 </body>
 </html>
