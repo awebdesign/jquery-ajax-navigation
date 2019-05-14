@@ -223,12 +223,6 @@ An.ProcessOutput = function (options, response)
 
     //LOAD CONTENT
     if(response.content) {
-        //TO DO
-        if(options.nodeName == 'form') {
-            $(options.el).validator('update');
-            //console.log('TEST UPDATE VALIDATION');
-        }
-
         if(options.nav == 'modal' || options.nav == 'modal-save') {
             An.CreateModal(options, response);
         } else {
@@ -322,6 +316,12 @@ An.CreateModal = function (options, response) {
     tabIndex++;
 }
 
+An.SubmitModalForm = function (el) {
+    var form = el.parents('.modal-content').find('.modal-body form');
+    $(form).validator('update');
+    form.submit();
+}
+
 An.Push = function (options) {
     if(options.push) {
         var currentState = history.state;
@@ -407,7 +407,7 @@ $(document).ready(function () {
 An.Mutations.AjaxNav = {
     Selector: '[data-ajax-nav]',
     Apply: function (elements) {
-        $.each(elements, function (){
+        $.each(elements, function (){            
             if ($(this).attr('href') === undefined) {
                 $(this).validator({
                     feedback: {
@@ -434,8 +434,7 @@ An.Mutations.AjaxModalSave = {
     Selector: '[data-ajax-modal-save]',
     Apply: function (elements) {
         elements.click(function (e) {
-            e.preventDefault();
-            $(this).parent().parent().find('form').submit();
+            An.SubmitModalForm($(this));
         });
     },
 };
