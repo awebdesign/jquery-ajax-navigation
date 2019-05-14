@@ -8,7 +8,8 @@ the difference between modal and modal-save is that, modal save has a "Save" but
 <strong>data-ajax-response="html|json"</strong> -> default json
 <br/>
 <strong>data-ajax-container=".class|#id"</strong> -> just for link, starts with # by default if . or # is not defined
-
 <br/>
 <strong>data-ajax-push="true|false"</strong> -> default false
+<br/>
+<strong>data-ajax-callback="functionNameHere"</strong> -> yout can specify your custom callback function/method here. you can use "this" inside the function/method. By default if there are no params sent you will receive "options" and "response" param
 <br/>
