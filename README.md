@@ -1,5 +1,4 @@
 # jquery-ajax-navigation
-<br/><br/>
 <h3>HTML Attributes</h3>
 <ul>
     <li>
@@ -41,9 +40,9 @@
     </li>
 </ul>
 
-<br/><br/>
+<br/>
 
-<h3>Responses</h3>
+<h3>Server Response</h3>
 The server can repond with HTML or JSON. In order to proccess the output the library needs to know the type of the response which can be done with data-ajax-response="html" else will threat all the responses as JSON.<br/>
 In case of JSON, here are a few values which can be sent:<br/><br/>
 <ul>
