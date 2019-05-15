@@ -8,11 +8,11 @@
     </li>
     <li>
         <strong>data-ajax-confirm="Your message here"</strong>
-        <br/>default is "Are you sure?"
+        <br/>Confirmation modal. If there is no message defined then the default one will be used ("Are you sure?")
     </li>
     <li>
         <strong>data-ajax-response="html|json"</strong>
-        <br/>default json
+        <br/>type of server response. Default is JSON
     </li>
     <li>
         <strong>data-ajax-container=".class|#id|this|parent"</strong>
@@ -24,7 +24,7 @@
     </li>
     <li>
         <strong>data-ajax-push="true|false"</strong>
-        <br/>default false
+        <br/>Browser history push. Default false
     </li>
     <li>
         <strong>data-ajax-scroll="true|false"</strong>
