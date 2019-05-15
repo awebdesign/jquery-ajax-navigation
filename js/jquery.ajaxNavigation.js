@@ -28,21 +28,25 @@ An.Options = {
     response: 'json',
     container: '#container',
     confirm: 'Are you sure?',
-    push: false,
+    push: false,    
+    scroll: false,
+    extract: null,
+    trigger: null,
     callback: null
 };
 
 //no overide allowed
 An.Values = {
     el: null,
+    parent: null,
     id: null,
     for: null,
     nodeName: null,
-    action: null,
     method: 'GET',
-    href: null,
     title: null,
-    confirmed: false //if this thing is true then it can pass the confirm modal box
+    confirmed: false, //if this thing is true then it can pass the confirm modal box
+    modal: false,
+    url: null
 };
 
 /* Ajax Navigation Methods START */
@@ -99,15 +103,50 @@ An.GetDataset = function (el) {
                     break;
                 case 'container':
                     if(dataValue && (!(dataValue.indexOf(".") >= 0) && !(dataValue.indexOf("#") >= 0))) {
-                        dataValue = '#' + dataValue;
+                        switch(dataValue) {
+                            case 'this':
+                                dataValue = el;
+                                break;
+                            case 'parent':
+                                dataValue = el.parent();
+                                break;
+                            default:
+                                dataValue = '#' + dataValue;
+                        }                      
+                    }
+                    break;
+                case 'extract':
+                case 'trigger':
+                    if(dataValue && (!(dataValue.indexOf(".") >= 0) && !(dataValue.indexOf("#") >= 0))) {
+                        dataValue = '#' + dataValue;                      
                     }
                     break;
                 case 'push':
                 case 'confirmed':
+                case 'scroll':
                     dataValue = (dataValue && dataValue !== 'false') ? true : false;
-                    break;
+                    break;                
                 case 'callback':
                     break;
+                case 'modal':
+                    var checkifModal = el.parents('.an-modal');
+                    if(typeof checkifModal !== 'undefined') {
+                        dataValue = checkifModal;
+
+                        var forId = checkifModal.attr('data-ajax-for');
+                        options.parent = $('[data-ajax-id="' + forId + '"]');
+
+                        var trigger = options.parent.attr('data-ajax-trigger');
+                        if(typeof trigger !== 'undefined') {
+                            if(!(trigger.indexOf(".") >= 0) && !(trigger.indexOf("#") >= 0)) {
+                                trigger = '#' + trigger;                      
+                            }
+                            options.trigger = trigger;
+                        }
+                    } else {
+                        dataValue = false;
+                    }
+                break;
                 case 'confirm':
                     if(typeof(originalValue) != 'undefined') {
                         if(dataValue == true) {
@@ -119,6 +158,7 @@ An.GetDataset = function (el) {
                     break;
                 case 'id':
                 case 'for':
+                case 'parent':
                     break;
                 case 'title':
                     dataValue = el.attr(option);
@@ -129,6 +169,17 @@ An.GetDataset = function (el) {
                 case 'nodeName':
                     dataValue = (typeof el.attr('href') != 'undefined') ? 'link' : 'form';
                 break
+                case 'url':
+                    if(typeof el.attr('href') != 'undefined') {
+                        dataValue = el.attr('href');
+                    } else if(typeof el.attr('action') != 'undefined') {
+                        dataValue = el.attr('action');
+                    }
+                    
+                    if(!dataValue) {
+                        alert('URL is not defined for element: ' + options.id);
+                    }
+                    break
                 default:
                     dataValue = el.attr(option);
             }
@@ -152,8 +203,6 @@ An.Load = function (el) {
         }
     }
 
-    var url = options.href ? options.href : options.action;
-
     //if is a form serialize fields
     var formData = null;
     var hasFiles = false;
@@ -165,22 +214,24 @@ An.Load = function (el) {
                 var attr = (field.prop('files')) ? field.prop('files') : field.attr('files');
                 formData.append(field.attr('name'), attr[0]);
 
-                if(field.val().length)
+                if(field.val().length) {
                     hasFiles = true;
+                }
             } else {
                 if(field.attr('type')=='checkbox' || field.attr('type')=='radio') {
                     if(field.filter(':checked').val()) {
                         formData.append(field.attr('name'), field.val());
                     }
-                } else
+                } else {
                     formData.append(field.attr('name'), field.val());
+                }
             }
         });
     }
 
     $.ajax({
         type: options.method,
-        url: url,
+        url: options.url,
         cache: false,
         processData: false,
         contentType: false,
@@ -238,20 +289,34 @@ An.ProcessOutput = function (options, response)
         } else if(response.alert) {
             return alert(response.alert);
         }
+
+        if(options.modal != false && response.success) {            
+            An.CloseModal(options.modal);
+        }        
     } else {
         response = { content: response };
     }
 
     //LOAD CONTENT
     if(response.content) {
-        if(options.nav == 'modal' || options.nav == 'modal-save') {
-            An.CreateModal(options, response);
+        if(options.nav == 'modal' || options.nav == 'modal-save') {            
+            An.CreateModal(options, response.content);
         } else {
+            //if the cotnent is not for a modal box and the extract attribute is present then we will extract only what we need from the content            
+            if(options.extract) {
+                var extractEl = $(response.content).find(options.extract);
+                if(typeof extractEl !== 'undefined') {
+                    response.content = extractEl.html();
+                }
+            }
+
             $(options.container).html(response.content);
 
-            $('html, body').animate({
-                scrollTop: $(options.container).offset().top
-            }, 500);
+            if(options.scroll == true) {
+                $('html, body').animate({
+                    scrollTop: $(options.container).offset().top
+                }, 500);
+            }
         }
     }
 
@@ -281,13 +346,17 @@ An.ProcessOutput = function (options, response)
         var arguments = [options, response];
         An.getFunction(options.callback, ["xhr"]).apply(options.el, arguments);
     }
+
+    if(response.success && options.trigger) {
+        return An.Load($(options.trigger));
+    }
 }
 
 An.Confirm = function (el) {
     //console.log('An.Confirm');
     var options = An.GetDataset(el);
     el.removeAttr('data-ajax-confirmed'); //in case this el was confirmed previously ask again for permission
-    An.CreateModal(options, {content: options.confirm});
+    An.CreateModal(options, options.confirm);
     return false;
 }
 
@@ -301,10 +370,15 @@ An.Confirmed = function (modalId, forId) {
 }
 
 var tabIndex = 0;
-An.CreateModal = function (options, response) {
+An.CreateModal = function (options, content) {
     //close old opened modal
     //$('.an-modal').modal('hide');
     var modalId = An.CreateId();
+    /*var hasForm = $(content).find('> form');
+    if(typeof hasForm !== 'undefined') {
+        $(hasForm).attr('data-ajax-for', options.id);
+        content = $(content).get(0).outerHTML;
+    }*/
 
     //create modal
     html = '<div class="modal fade an-modal" id="' + modalId + '" data-ajax-id="' + modalId + '" data-ajax-for="' + options.id + '" tabindex="' + tabIndex + '" role="dialog" aria-labelledby="An-modalTitle" aria-hidden="true">';
@@ -316,7 +390,7 @@ An.CreateModal = function (options, response) {
                     html += '<h4 class="modal-title">' + options.title + '</h4>';
                 html += '</div>';
             }
-            html += '<div class="modal-body">' + response.content + '</div>';
+            html += '<div class="modal-body">' + content + '</div>';
             if(options.confirm !== false) {
                 html += '<div class="modal-footer">';
                 html += '<button type="button" class="btn btn-secondary" data-dismiss="modal" style="margin-right: 7px;"><i class="fa fa-reply"></i></button>';
@@ -337,10 +411,16 @@ An.CreateModal = function (options, response) {
     tabIndex++;
 }
 
+An.CloseModal = function (modalId) {
+    $(modalId).modal('hide');
+}
+
 An.SubmitModalForm = function (el) {
     var form = el.parents('.modal-content').find('.modal-body form');
-    $(form).validator('update');
-    form.submit();
+    if(typeof form !== 'undefined') {
+        $(form).validator('update');
+        form.submit();
+    }
 }
 
 An.Push = function (options) {
@@ -430,8 +510,8 @@ $(document).ready(function () {
 An.Mutations.AjaxNav = {
     Selector: '[data-ajax-nav]',
     Apply: function (elements) {
-        $.each(elements, function (){            
-            if ($(this).attr('href') === undefined) {
+        $.each(elements, function (){
+            if (typeof $(this).attr('href') == 'undefined') {
                 $(this).validator({
                     feedback: {
                         success: 'fa-check',

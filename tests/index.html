@@ -34,8 +34,10 @@
 -->
 
 <h3>TEST AJAX NAV</h3>
-<a href="content.php" data-ajax-nav>AJAX NAV (json)- default container</a>
+<a id="first-link" href="content.php" data-ajax-nav>AJAX NAV (json)- default container</a>
  |
+<a href="content.php" data-ajax-nav data-ajax-scroll>AJAX NAV (json)- SCROLL TO ELEMENT</a>
+ | 
 <a href="content.php" data-ajax-nav data-ajax-container="container-custom">AJAX NAV (json) - custom container</a>
 |
 <a href="content.php" data-ajax-nav data-ajax-push>AJAX NAV (json) - SET STATE</a>
@@ -43,6 +45,8 @@
 <a href="content.php" data-ajax-nav data-ajax-push title="My title">MY TITLE _ AJAX NAV (json) - SET STATE</a>
 |
 <a href="content.php?link-in-link=true" data-ajax-nav>AJAX NAV (json)- LINK IN LINK</a>
+|
+<a href="content.php" data-ajax-nav data-ajax-scroll data-ajax-extract="time-span">AJAX NAV (json)- EXTRACT</a>
 |
 <a href="content.php" data-ajax-nav data-ajax-callback="testingCallback">AJAX NAV (json)- CALLBACK</a>
 |
@@ -75,12 +79,17 @@
 <a href="content.php?response=html&form=true" data-ajax-nav="modal-save" data-ajax-response="html">AJAX NAV (HTML) - MODAL WITH SAVE</a>
 |
 <a href="content.php?response=html&form=true" data-ajax-nav="modal-save" data-ajax-response="html" data-ajax-push>AJAX NAV (HTML) MODAL SAVE STATE</a>
-|
+| 
 <a href="content.php?form2=true" data-ajax-nav="modal-save">(json) - MODAL SAVE - continue with modal</a>
+|
+<a href="content.php?form3=true" data-ajax-nav="modal-save">AJAX FORM3 - MODAL - close on success</a>
+|
+<a href="content.php?form3=true" data-ajax-nav="modal-save" data-ajax-trigger="#container3">AJAX FORM3 - MODAL - TRIGGER on success</a>
 <br/><br/>
 <a href="content.php?response=html" data-ajax-nav data-ajax-confirm data-ajax-response="html" data-ajax-container="container-custom">Confirm</a>
 |
 <a href="content.php?response=html" data-ajax-nav data-ajax-confirm="Test message" data-ajax-response="html" data-ajax-container="container-custom">Confirm custom message</a>
+
 
 <br/><br/>
 <form method='post' action='content.php?form2=true' data-ajax-nav="modal-save">
@@ -100,6 +109,9 @@
 <br/><br/>
 <h3>CONTAINER RESULT HERE (custom)</h3>
 <div id="container-custom">default content here</div>
+
+<h3>CONTAINER 3 - WITH TRIGGER</h3>
+<div id="container3" data-ajax-url="content.php" data-ajax-container="this" data-ajax-scroll data-ajax-extract="time-span">CONTAINER 3</div>
 
 <script>
     function testingCallback(options, response) {

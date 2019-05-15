@@ -10,7 +10,7 @@
  */
 
 $data = [
-    "content"=> "<h1>AJAX CONTENT HERE ! Time: " . time() . "</h1>"
+    "content"=> "<h1>AJAX CONTENT HERE ! <span id='time-span'>Time: " . time() . "</span></h1>"
 ];
 
 $response = isset($_GET['response']) ? $_GET['response'] : 'json';
@@ -46,9 +46,29 @@ if(isset($_GET['form2'])) {
     <br/><br/><a href='content.php?response=html' data-ajax-nav='modal' data-ajax-response='html'>AJAX NAV (HTML) - NEW MODAL</a></form>";
 }
 
-if($_POST) {
-    $data['content'] = $data['content'] . '<br/>' . print_r($_POST, 1);
+if(isset($_GET['form3'])) {
+    $succes = (isset($_POST['success']) && $_POST['success']) ? ' data-ajax-success' : '';
+    $data['content'] = "<form method='post' id='form3' action='content.php?form3=true' data-ajax-nav data-ajax-container='parent' " . $succes .">" . time() ." Success ?<label><input type='radio' name='success' value='0' />No</label><label><input type='radio' name='success' value='1' checked />Yes</label></form>";
 }
+
+if(isset($_POST['success']) && $_POST['success'] || isset($_GET['success'])) {
+    $data['success'] = true;
+}
+
+
+if($_POST) {
+    $data['content'] = $data['content'] . '<br/>' . print_r($_POST, 1) . print_r(time(), 1);
+}
+
+/**
+ * Ajax navigation
+ *
+ * data-ajax-nav="modal|confirm|link" -> default link
+ * data-ajax-response="html|json" -> default json
+ * data-ajax-container=".class|#id" -> just for link, starts with # by default if . or # is not defined
+ * data-ajax-confirm="Your message here"
+ * data-ajax-push="true|false" -> default false
+ */
 
 if($response == 'json') {
     echo json_encode($data);
