@@ -74,7 +74,6 @@ In case of JSON, here are a few values which can be sent:<br/><br/>
 
 <br/>
 <h3>3rd Party Libraries</h3>
-<br/><br/>
 <ul>
     <li>
         <strong>Bootstrap Validator</strong>
