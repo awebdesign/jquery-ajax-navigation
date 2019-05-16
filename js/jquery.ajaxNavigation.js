@@ -42,7 +42,8 @@ An.Options = {
     },
     //if An.notify is null the notifications will not trigger anymore
     notify: {
-        newest_on_top: true
+        newest_on_top: true,
+        z_index: 1100
     },
     buttons: {
         save: '<i class="fa fa-save"></i>',

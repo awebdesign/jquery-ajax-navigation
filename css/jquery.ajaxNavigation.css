@@ -1,3 +1,12 @@
+/*!
+ * Ajax Navigation v1.0.0 for Bootstrap 3, by Aweb
+ * Copyright 2019 Aweb
+ * Licensed under http://opensource.org/licenses/MIT
+ *
+ * https://github.com/awebdesign/jquery-ajax-navigation
+ */
+
+/* Loading screen */
 .an-overlay-container{position: relative;overflow: hidden;}
 .an-overlay {position: absolute;left: 0; top: 0; right: 0; bottom: 0;z-index: 2;background-color: rgba(255,255,255,0.6);}
 .an-overlay-loading {
@@ -11,4 +20,24 @@
     text-align: center;
     height: 31px;
     background: url('http://i.stack.imgur.com/FhHRx.gif') 50% 50% no-repeat;
+}
+
+/* bootstrap centered */
+.an-modal {
+    text-align: center;
+}
+
+.an-modal .modal-dialog {
+    display: inline-block;
+    text-align: left;
+    vertical-align: middle;
+}
+
+@media screen and (min-width: 768px) { 
+    .an-modal:before {
+        display: inline-block;
+        vertical-align: middle;
+        content: " ";
+        height: 100%;
+    }
 }

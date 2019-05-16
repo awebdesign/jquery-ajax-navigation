@@ -47,7 +47,8 @@ if(isset($_GET['form2'])) {
 }
 
 if(isset($_GET['form3'])) {
-    $succes =''; //$succes = (isset($_POST['success']) && $_POST['success']) ? ' data-ajax-success' : '';
+    $succes =''; //$succes = (isset($_POST['success']) && $_POST['success']) ? ' data-ajax-success' : '';    
+
     $data['content'] = "<form method='post' id='form3' action='content.php?form3=true' data-ajax-nav data-ajax-replace='this' " . $succes .">" . time() ." Success ?<label><input type='radio' name='success' value='0' />No</label><label><input type='radio' name='success' value='1' checked />Yes</label></form>";
 }
 
@@ -73,6 +74,14 @@ if(isset($_GET['notifications'])) {
     foreach(['success', 'info', 'warning', 'danger'] as $type) {
         $data['notifications'][$type][] = 'TEST MESSAGE HERE - ' . rand();
     }     
+}
+
+if(isset($_POST['success'])) {
+    if($_POST['success'] == 0) {
+        $data['notifications']['warning'] = 'Please select "Yes" as value';
+    } else {
+        $data['notifications']['success'] = 'Thank you!';
+    }
 }
 
 if($response == 'json') {
