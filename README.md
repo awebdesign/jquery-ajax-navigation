@@ -12,15 +12,19 @@
     </li>
     <li>
         <strong>data-ajax-response="html|json"</strong>
-        <br/>type of server response. Default is JSON
+        <br/>Type of server response. Default is JSON
     </li>
     <li>
         <strong>data-ajax-container=".class|#id|this|parent"</strong>
-        <br/>the container can have 'this' as a value, which means will take the current element as container, can have 'parent' which means will take the parent of the actual element or can be an id or class name. By default if the value does not starts with . or #, a # character will be put in front of the value
+        <br/>The container can have 'this' as a value, which means will take the current element as container, can have 'parent' which means will take the parent of the actual element or can be an id or class name. By default if the value does not starts with . or #, a # character will be put in front of the value
+    </li>
+    <li>
+        <strong>data-ajax-replace=".class|#id|this|parent"</strong>
+        <br/>The container which will be replace with the content received from the server. The container replacement can have 'this' as a value, which means will take the current element as container, can have 'parent' which means will take the parent of the actual element or can be an id or class name. By default if the value does not starts with . or #, a # character will be put in front of the value. When using this attribute, data-ajax-container will be ignored
     </li>
     <li>
         <strong>data-ajax-extract=".class|#id"</strong>
-        <br/>if we need to extract only a single element from the whole html content response then we can use this attribute and as a value we can define what element we want to extract. By default if the value does not starts with . or #, a # character will be put in front of the value
+        <br/>If we need to extract only a single element from the whole html content response then we can use this attribute and as a value we can define what element we want to extract. By default if the value does not starts with . or #, a # character will be put in front of the value
     </li>
     <li>
         <strong>data-ajax-push="true|false"</strong>
@@ -28,15 +32,15 @@
     </li>
     <li>
         <strong>data-ajax-scroll="true|false"</strong>
-        <br/>if the attribute is present then after the request the page will automatically scroll to that element
+        <br/>If the attribute is present then after the request the page will automatically scroll to that element
     </li>
     <li>
         <strong>data-ajax-trigger=".class|#id"</strong>
-        <br/>if we need to trigger another ajax-nav element then we can use this attribute and as a value we can define the id or class name of the element we want to trigger. By default if the value does not starts with . or #, a # character will be put in front of the value
+        <br/>If we need to trigger another ajax-nav element then we can use this attribute and as a value we can define the id or class name of the element we want to trigger. By default if the value does not starts with . or #, a # character will be put in front of the value
     </li>
     <li>
         <strong>data-ajax-callback="functionNameHere"</strong>
-        <br/>you can specify your custom callback function/method here and also you can use "this" inside the function/method. By default if there are no params sent you will receive "options" and "response" param
+        <br/>You can specify your custom callback function/method here and also you can use "this" inside the function/method. By default if there are no params sent you will receive "options" and "response" param
     </li>
 </ul>
 

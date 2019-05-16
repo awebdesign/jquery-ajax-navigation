@@ -1,9 +1,8 @@
-
 /*!
  * Ajax Navigation v1.0.0 for Bootstrap 3, by Aweb
  * Copyright 2019 Aweb
  * Licensed under http://opensource.org/licenses/MIT
- * 
+ *
  * https://github.com/awebdesign/jquery-ajax-navigation
  *
  * data-ajax-nav="modal|confirm|link" -> default link
@@ -27,12 +26,24 @@ An.Options = {
     nav: 'link',
     response: 'json',
     container: '#container',
+    replace: null,
     confirm: 'Are you sure?',
-    push: false,    
+    push: false,
     scroll: false,
     extract: null,
     trigger: null,
-    callback: null
+    callback: null,    
+    //if An.Validator is null there we will not validate the form anymore
+    validator: {
+        feedback: {
+            success: 'fa-check',
+            error: 'fa-times'
+        }
+    },
+    buttons: {
+        save: '<i class="fa fa-save"></i>',
+        back: '<i class="fa  fa-check"></i>'
+    }
 };
 
 //no overide allowed
@@ -50,17 +61,32 @@ An.Values = {
 };
 
 /* Ajax Navigation Methods START */
-An.Loader = function (el) {
-    $body = $(el);    
-    $(document).on({    
-        ajaxStart: function() { 
-            $body.append('<div class="overlay"></div>')
-            $body.addClass("loading");
+An.Loader = function (options) {
+    $(document).find('.an-overlay').remove();
+    $(document).find('.an-overlay-container').removeClass('an-overlay-container');
+
+    var loaderEl = options.replace ? options.replace : options.container;
+    loaderEl = (loaderEl === null || options.nav != 'link') ? 'body' : loaderEl;
+
+    $body = $(loaderEl);
+
+    if($body.parents('.modal-content').length) {
+        $body = $body.parents('.modal-content');
+    }
+
+    if($body.height() < 50 || $body.width() < 50) {
+        $body = $('body');
+    }
+
+    $(document).on({
+        ajaxStart: function() {
+            $body.addClass('an-overlay-container');
+            $body.append('<div class="an-overlay"><div class="an-overlay-loading"></div></div>');
         },
         ajaxStop: function() {
-            $body.find('.overlay').remove();
-            $body.removeClass("loading"); 
-        }    
+            $body.find('.an-overlay').remove();
+            $body.removeClass('an-overlay-container');
+        }
     });
 }
 
@@ -82,7 +108,14 @@ An.GetDataset = function (el) {
         }
 
         if(option) {
-            switch(option) {
+            switch(option) {                
+                case 'id':
+                case 'for':
+                case 'parent':
+                case 'callback':
+                case 'validator':
+                case 'buttons':
+                    break;
                 case 'el':
                     if(!dataValue) {
                         dataValue = el;
@@ -102,6 +135,7 @@ An.GetDataset = function (el) {
                     }
                     break;
                 case 'container':
+                case 'replace':
                     if(dataValue && (!(dataValue.indexOf(".") >= 0) && !(dataValue.indexOf("#") >= 0))) {
                         switch(dataValue) {
                             case 'this':
@@ -112,13 +146,13 @@ An.GetDataset = function (el) {
                                 break;
                             default:
                                 dataValue = '#' + dataValue;
-                        }                      
+                        }
                     }
                     break;
                 case 'extract':
                 case 'trigger':
                     if(dataValue && (!(dataValue.indexOf(".") >= 0) && !(dataValue.indexOf("#") >= 0))) {
-                        dataValue = '#' + dataValue;                      
+                        dataValue = '#' + dataValue;
                     }
                     break;
                 case 'push':
@@ -126,8 +160,6 @@ An.GetDataset = function (el) {
                 case 'scroll':
                     dataValue = (dataValue && dataValue !== 'false') ? true : false;
                     break;                
-                case 'callback':
-                    break;
                 case 'modal':
                     var checkifModal = el.parents('.an-modal');
                     if(typeof checkifModal !== 'undefined') {
@@ -139,7 +171,7 @@ An.GetDataset = function (el) {
                         var trigger = options.parent.attr('data-ajax-trigger');
                         if(typeof trigger !== 'undefined') {
                             if(!(trigger.indexOf(".") >= 0) && !(trigger.indexOf("#") >= 0)) {
-                                trigger = '#' + trigger;                      
+                                trigger = '#' + trigger;
                             }
                             options.trigger = trigger;
                         }
@@ -155,11 +187,7 @@ An.GetDataset = function (el) {
                     } else {
                         dataValue = false;
                     }
-                    break;
-                case 'id':
-                case 'for':
-                case 'parent':
-                    break;
+                    break;                
                 case 'title':
                     dataValue = el.attr(option);
                     if(!dataValue && typeof el.attr('href') != 'undefined') {
@@ -175,7 +203,7 @@ An.GetDataset = function (el) {
                     } else if(typeof el.attr('action') != 'undefined') {
                         dataValue = el.attr('action');
                     }
-                    
+
                     if(!dataValue) {
                         alert('URL is not defined for element: ' + options.id);
                     }
@@ -185,6 +213,8 @@ An.GetDataset = function (el) {
             }
             if(typeof(dataValue) != 'undefined') {
                 options[option] = dataValue;
+            } else {
+                options[option] = defaultOptionValue;
             }
         }
     });
@@ -228,6 +258,8 @@ An.Load = function (el) {
             }
         });
     }
+    
+    An.Loader(options);
 
     $.ajax({
         type: options.method,
@@ -248,18 +280,14 @@ An.Load = function (el) {
             }
         },
         success: function (response) {
-            //loadingScreenStop();
             An.ProcessOutput(options, response);
         },
         fail: function (xhr, status, error) {
-            //loadingScreenStop();
-
             if(xhr.responseText) {
               An.ProcessOutput(options, {alert: xhr.responseText});
             }
         },
         xhr: function () {  // custom xhr
-            //loadingScreenStop();
             var xhr = $.ajaxSettings.xhr();
             if(xhr.upload){ // check if upload property exists
                 xhr.upload.addEventListener('progress',function (e){
@@ -290,19 +318,19 @@ An.ProcessOutput = function (options, response)
             return alert(response.alert);
         }
 
-        if(options.modal != false && response.success) {            
+        if(options.modal != false && response.success) {
             An.CloseModal(options.modal);
-        }        
+        }
     } else {
         response = { content: response };
     }
 
     //LOAD CONTENT
     if(response.content) {
-        if(options.nav == 'modal' || options.nav == 'modal-save') {            
+        if(options.nav == 'modal' || options.nav == 'modal-save') {
             An.CreateModal(options, response.content);
         } else {
-            //if the cotnent is not for a modal box and the extract attribute is present then we will extract only what we need from the content            
+            //if the cotnent is not for a modal box and the extract attribute is present then we will extract only what we need from the content
             if(options.extract) {
                 var extractEl = $(response.content).find(options.extract);
                 if(typeof extractEl !== 'undefined') {
@@ -310,12 +338,24 @@ An.ProcessOutput = function (options, response)
                 }
             }
 
-            $(options.container).html(response.content);
+            if(options.replace) {
+                $(options.replace).replaceWith(response.content);
+                options.container = options.replace; //for scroll option
+            } else {
+                $(options.container).html(response.content);
+            }            
 
             if(options.scroll == true) {
                 $('html, body').animate({
                     scrollTop: $(options.container).offset().top
                 }, 500);
+            }
+        }
+
+        if(options.modal) {
+            var form = options.modal.find(' > form');
+            if(typeof form !== 'undefined' && An.Options.validator) {
+                form.validator(An.Options.validator);
             }
         }
     }
@@ -353,7 +393,6 @@ An.ProcessOutput = function (options, response)
 }
 
 An.Confirm = function (el) {
-    //console.log('An.Confirm');
     var options = An.GetDataset(el);
     el.removeAttr('data-ajax-confirmed'); //in case this el was confirmed previously ask again for permission
     An.CreateModal(options, options.confirm);
@@ -371,8 +410,6 @@ An.Confirmed = function (modalId, forId) {
 
 var tabIndex = 0;
 An.CreateModal = function (options, content) {
-    //close old opened modal
-    //$('.an-modal').modal('hide');
     var modalId = An.CreateId();
     /*var hasForm = $(content).find('> form');
     if(typeof hasForm !== 'undefined') {
@@ -394,12 +431,12 @@ An.CreateModal = function (options, content) {
             if(options.confirm !== false) {
                 html += '<div class="modal-footer">';
                 html += '<button type="button" class="btn btn-secondary" data-dismiss="modal" style="margin-right: 7px;"><i class="fa fa-reply"></i></button>';
-                html += '<button type="button" class="btn btn-primary" name="Confirm" onclick="An.Confirmed(\'' + modalId + '\'\, \'' + options.id + '\')"><i class="fa  fa-check"></i></button>';
+                html += '<button type="button" class="btn btn-primary" name="Confirm" onclick="An.Confirmed(\'' + modalId + '\'\, \'' + options.id + '\')">' + An.Options.buttons.back + '</button>';
                 html += '</div>';
             } else if(options.nav == 'modal-save') {
                 html += '<div class="modal-footer">';
                 html += '<button type="button" class="btn btn-secondary" data-dismiss="modal" style="margin-right: 7px;"><i class="fa fa-reply"></i></button>';
-                html += '<button type="button" class="btn btn-primary" name="Save" data-ajax-modal-save><i class="fa fa-save"></i></button>';
+                html += '<button type="button" class="btn btn-primary" name="Save" onclick="An.SubmitModalForm(\'#' + modalId + '\')">' + An.Options.buttons.save + '</button>';
                 html += '</div>';
             }
             html += '</div>';
@@ -408,6 +445,7 @@ An.CreateModal = function (options, content) {
 
     $('body').prepend(html);
     $('#' + modalId).modal();
+
     tabIndex++;
 }
 
@@ -415,10 +453,9 @@ An.CloseModal = function (modalId) {
     $(modalId).modal('hide');
 }
 
-An.SubmitModalForm = function (el) {
-    var form = el.parents('.modal-content').find('.modal-body form');
+An.SubmitModalForm = function (modalId) {
+    var form = $(modalId).find('.modal-body > form');
     if(typeof form !== 'undefined') {
-        $(form).validator('update');
         form.submit();
     }
 }
@@ -428,11 +465,11 @@ An.Push = function (options) {
         var currentState = history.state;
         var newState =
         {
-            url: options.href,
+            url: options.url,
             title: options.title
         };
         if ((currentState == null) || (currentState.url != newState.url)) {
-            history.pushState(newState, options.title, options.href);
+            history.pushState(newState, options.title, options.url);
             document.title = options.title;
         }
     }
@@ -472,9 +509,7 @@ $(document).on('show.bs.modal', '.modal', function () {
 /* Ajax Navigation Helpers END */
 
 /* Mutations Observer START */
-$(document).ready(function () {
-    An.Loader('body');
-
+$(document).ready(function () {    
     for (var propertyName in An.Mutations) {
         var $elements = $(An.Mutations[propertyName].Selector);
         if ($elements.length > 0) {
@@ -489,8 +524,7 @@ $(document).ready(function () {
                 var addedNodes = $(mutation.addedNodes);
 
                 for (var propertyName in An.Mutations) {
-                    var $elements = //addedNodes.filter(An.Mutations[propertyName].Selector);
-                        addedNodes.find(An.Mutations[propertyName].Selector)
+                    var $elements = addedNodes.find(An.Mutations[propertyName].Selector)
                             .add(addedNodes.filter(An.Mutations[propertyName].Selector));
                     if ($elements.length > 0) {
                         An.Mutations[propertyName].Apply($elements);
@@ -502,7 +536,7 @@ $(document).ready(function () {
 
     var config = { childList: true, characterData: true, subtree: true };
 
-    observer.observe(document, config);
+observer.observe(document, config);
 });
 /* Mutations Observer END */
 
@@ -512,17 +546,21 @@ An.Mutations.AjaxNav = {
     Apply: function (elements) {
         $.each(elements, function (){
             if (typeof $(this).attr('href') == 'undefined') {
-                $(this).validator({
-                    feedback: {
-                        success: 'fa-check',
-                        error: 'fa-times'
-                    }
-                }).on('submit', function (e) {
-                    if (!e.isDefaultPrevented()) {
-                        e.preventDefault();
-                        An.Load($(this));
-                    }
-                });
+                if(An.Options.validator) {
+                    $(this).validator(An.Options.validator).on('submit', function (e) {
+                        if (!e.isDefaultPrevented()) {
+                            e.preventDefault();
+                            An.Load($(this));
+                        }
+                    });
+                } else {
+                    $(this).on('submit', function (e) {
+                        if (!e.isDefaultPrevented()) {
+                            e.preventDefault();
+                            An.Load($(this));
+                        }
+                    });
+                }
             } else {
                 $(this).click(function (e) {
                     e.preventDefault();
@@ -531,15 +569,6 @@ An.Mutations.AjaxNav = {
             }
         });
     }
-};
-
-An.Mutations.AjaxModalSave = {
-    Selector: '[data-ajax-modal-save]',
-    Apply: function (elements) {
-        elements.click(function (e) {
-            An.SubmitModalForm($(this));
-        });
-    },
 };
 
 An.Mutations.AjaxConfirm = {

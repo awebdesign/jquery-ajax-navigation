@@ -32,11 +32,11 @@ if(isset($_GET['link-in-link'])) {
 }
 
 if(isset($_GET['form'])) {
-    $data['content'] = "<form method='post' id='form' action='content.php?form=true' data-ajax-nav data-ajax-container='form'><input name='test_field' value='" . time() . "' /><input type='submit' value='Submit field'></form>";
+    $data['content'] = "<form method='post' id='form' action='content.php?form=true' data-ajax-nav data-ajax-container='parent'><input name='test_field' value='" . time() . "' /><input type='submit' value='Submit field'></form>";
 }
 
 if(isset($_GET['form2'])) {
-    $data['content'] = "<form method='post' id='form2' action='content.php?form2=true' data-ajax-nav data-ajax-container='form2' >
+    $data['content'] = "<form method='post' id='form2' action='content.php?form2=true' data-ajax-nav data-ajax-container='parent' >
     <div class='itlk-form-control large form-group has-feedback'>
     <label for='password' class='itlk-label'>pass required</label>
     <input class='itlk-input login-input form-control' type='password' id='password' name='password' required data-required-error='Password is required' />
@@ -47,8 +47,8 @@ if(isset($_GET['form2'])) {
 }
 
 if(isset($_GET['form3'])) {
-    $succes = (isset($_POST['success']) && $_POST['success']) ? ' data-ajax-success' : '';
-    $data['content'] = "<form method='post' id='form3' action='content.php?form3=true' data-ajax-nav data-ajax-container='parent' " . $succes .">" . time() ." Success ?<label><input type='radio' name='success' value='0' />No</label><label><input type='radio' name='success' value='1' checked />Yes</label></form>";
+    $succes =''; //$succes = (isset($_POST['success']) && $_POST['success']) ? ' data-ajax-success' : '';
+    $data['content'] = "<form method='post' id='form3' action='content.php?form3=true' data-ajax-nav data-ajax-replace='this' " . $succes .">" . time() ." Success ?<label><input type='radio' name='success' value='0' />No</label><label><input type='radio' name='success' value='1' checked />Yes</label></form>";
 }
 
 if(isset($_POST['success']) && $_POST['success'] || isset($_GET['success'])) {
