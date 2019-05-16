@@ -69,6 +69,11 @@ if($_POST) {
  * data-ajax-confirm="Your message here"
  * data-ajax-push="true|false" -> default false
  */
+if(isset($_GET['notifications'])) {
+    foreach(['success', 'info', 'warning', 'danger'] as $type) {
+        $data['notifications'][$type][] = 'TEST MESSAGE HERE - ' . rand();
+    }     
+}
 
 if($response == 'json') {
     echo json_encode($data);

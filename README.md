@@ -66,4 +66,22 @@ In case of JSON, here are a few values which can be sent:<br/><br/>
         <strong>success</strong>
         <br/>will mark the operation as done and will close the modal box
     </li>
+    <li>
+        <strong>notifications</strong>
+        <br/>should be an array or object which can containt the following indexes <b>['success', 'info', 'warning', 'danger']</b> and the value can be an <b>array</b> for multiple messages at once or can be a <b>string</b> for a single message per type. The library will trigger and a message for each value found
+    </li>
+</ul>
+
+<br/>
+<h3>3rd Party Libraries</h3>
+<br/><br/>
+<ul>
+    <li>
+        <strong>Bootstrap Validator</strong>
+        <br/><a target="_blank" href="https://github.com/1000hz/bootstrap-validator">Git hub 1000hz/bootstrap-validator</a>
+    </li>
+    <li>
+        <strong>Bootstrap Notify</strong>
+        <br/><a target="_blank" href="https://github.com/mouse0270/bootstrap-notify">Git hub mouse0270/bootstrap-notify</a>
+    </li>
 </ul>

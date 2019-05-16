@@ -33,12 +33,16 @@ An.Options = {
     extract: null,
     trigger: null,
     callback: null,    
-    //if An.Validator is null there we will not validate the form anymore
+    //if An.validator is null the validation will be skipped
     validator: {
         feedback: {
             success: 'fa-check',
             error: 'fa-times'
         }
+    },
+    //if An.notify is null the notifications will not trigger anymore
+    notify: {
+        newest_on_top: true
     },
     buttons: {
         save: '<i class="fa fa-save"></i>',
@@ -114,6 +118,7 @@ An.GetDataset = function (el) {
                 case 'parent':
                 case 'callback':
                 case 'validator':
+                case 'notifications':
                 case 'buttons':
                     break;
                 case 'el':
@@ -364,21 +369,23 @@ An.ProcessOutput = function (options, response)
     An.Push(options);
 
     //show notifications
-    if(response.notifications)
+    if(response.notifications && An.Options.notify)
     {
-        /*if(response.notifications.info) {
-            $.jGrowl.defaults.theme = 'jGrowl-info';
-            $(response.notifications.info).each(function(){
-                $.jGrowl(this, { header: 'Info' });
+        var notificationsTypes = ['success', 'info', 'warning', 'danger'];
+        $.each(notificationsTypes, function(){
+            var index = this;
+            //in case we have just a single value
+            if(typeof response.notifications[index] == 'string') {
+                response.notifications[index] = new Array(response.notifications[index]);
+            }
+
+            $(response.notifications[index]).each(function(i, value){
+                var notifyOptions = $.extend({}, An.Options.notify, {type: index});
+                $.notify({
+                    message: value                   
+                }, notifyOptions);
             });
-        }
-        if(response.notifications.error) {
-            $.jGrowl.defaults.theme = 'jGrowl-error';
-            $(response.notifications.error).each(function(){
-                $.jGrowl(this, { header: 'Error' });
-            });
-        }
-        $.jGrowl.defaults.theme = 'default';*/
+        });           
     }
 
     //call calback function if finish
@@ -411,11 +418,6 @@ An.Confirmed = function (modalId, forId) {
 var tabIndex = 0;
 An.CreateModal = function (options, content) {
     var modalId = An.CreateId();
-    /*var hasForm = $(content).find('> form');
-    if(typeof hasForm !== 'undefined') {
-        $(hasForm).attr('data-ajax-for', options.id);
-        content = $(content).get(0).outerHTML;
-    }*/
 
     //create modal
     html = '<div class="modal fade an-modal" id="' + modalId + '" data-ajax-id="' + modalId + '" data-ajax-for="' + options.id + '" tabindex="' + tabIndex + '" role="dialog" aria-labelledby="An-modalTitle" aria-hidden="true">';
