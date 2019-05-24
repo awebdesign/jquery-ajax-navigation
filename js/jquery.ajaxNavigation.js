@@ -43,7 +43,11 @@ An.Options = {
     //if An.notify is null the notifications will not trigger anymore
     notify: {
         newest_on_top: true,
-        z_index: 1100
+        z_index: 1100,
+        placement: {
+            from: "top",
+            align: "center"
+        }
     },
     buttons: {
         save: '<i class="fa fa-save"></i>',
@@ -338,7 +342,7 @@ An.ProcessOutput = function (options, response)
         } else {
             //if the cotnent is not for a modal box and the extract attribute is present then we will extract only what we need from the content
             if(options.extract) {
-                var extractEl = $(response.content).find(options.extract);
+                var extractEl = $(response.content).filter(options.extract);
                 if(typeof extractEl !== 'undefined') {
                     response.content = extractEl.html();
                 }
