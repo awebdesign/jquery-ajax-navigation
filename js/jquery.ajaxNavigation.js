@@ -569,6 +569,10 @@ An.Mutations.AjaxNav = {
                     e.preventDefault();
                     An.Load($(this));
                 });
+
+                $(this).bind("contextmenu", function(){
+                    return false;
+                });
             }
         });
     }
@@ -583,6 +587,10 @@ An.Mutations.AjaxConfirm = {
                 e.preventDefault();
                 An.Confirm(el);
             }
+        });
+
+        elements.bind("contextmenu", function(){
+            return false;
         });
     },
 };
