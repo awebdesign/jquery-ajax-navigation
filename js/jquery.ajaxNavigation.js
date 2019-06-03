@@ -342,7 +342,11 @@ An.ProcessOutput = function (options, response)
         } else {
             //if the cotnent is not for a modal box and the extract attribute is present then we will extract only what we need from the content
             if(options.extract) {
-                var extractEl = $(response.content).filter(options.extract);
+                if(options.response == 'html') {
+                    var extractEl = $(response.content).find(options.extract);
+                } else {
+                    var extractEl = $(response.content).filter(options.extract);
+                }
                 if(typeof extractEl !== 'undefined') {
                     response.content = extractEl.html();
                 }
@@ -551,8 +555,8 @@ observer.observe(document, config);
 An.Mutations.AjaxNav = {
     Selector: '[data-ajax-nav]',
     Apply: function (elements) {
-        $.each(elements, function (){
-            if (typeof $(this).attr('href') == 'undefined') {
+        $.each(elements, function (){            
+            if (typeof $(this).attr('href') == 'undefined' && typeof $(this).attr('data-ajax-url') == 'undefined') {
                 if(An.Options.validator) {
                     $(this).validator(An.Options.validator).on('submit', function (e) {
                         if (!e.isDefaultPrevented()) {
@@ -568,6 +572,8 @@ An.Mutations.AjaxNav = {
                         }
                     });
                 }
+            } else if (typeof $(this).attr('data-ajax-url') != 'undefined') {
+                An.Load($(this));
             } else {
                 $(this).click(function (e) {
                     e.preventDefault();
