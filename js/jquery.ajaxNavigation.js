@@ -342,9 +342,8 @@ An.ProcessOutput = function (options, response)
         } else {
             //if the cotnent is not for a modal box and the extract attribute is present then we will extract only what we need from the content
             if(options.extract) {
-                if(options.response == 'html') {
-                    var extractEl = $(response.content).find(options.extract);
-                } else {
+                var extractEl = $(response.content).find(options.extract);
+                if(!extractEl.length) {
                     var extractEl = $(response.content).filter(options.extract);
                 }
                 if(typeof extractEl !== 'undefined') {
