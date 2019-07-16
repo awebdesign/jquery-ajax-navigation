@@ -32,7 +32,7 @@ An.Options = {
     scroll: false,
     extract: null,
     trigger: null,
-    callback: null,    
+    callback: null,
     //if An.validator is null the validation will be skipped
     validator: {
         feedback: {
@@ -117,7 +117,7 @@ An.GetDataset = function (el) {
         }
 
         if(option) {
-            switch(option) {                
+            switch(option) {
                 case 'id':
                 case 'for':
                 case 'parent':
@@ -169,7 +169,7 @@ An.GetDataset = function (el) {
                 case 'confirmed':
                 case 'scroll':
                     dataValue = (dataValue && dataValue !== 'false') ? true : false;
-                    break;                
+                    break;
                 case 'modal':
                     var checkifModal = el.parents('.an-modal');
                     if(typeof checkifModal !== 'undefined') {
@@ -197,7 +197,7 @@ An.GetDataset = function (el) {
                     } else {
                         dataValue = false;
                     }
-                    break;                
+                    break;
                 case 'title':
                     dataValue = el.attr(option);
                     if(!dataValue && typeof el.attr('href') != 'undefined') {
@@ -268,7 +268,7 @@ An.Load = function (el) {
             }
         });
     }
-    
+
     An.Loader(options);
 
     $.ajax({
@@ -278,7 +278,7 @@ An.Load = function (el) {
         processData: false,
         contentType: false,
         dataType: options.response,
-        data: formData,
+        data: (options.method.toLowerCase() == 'post') ? formData : null,
         headers: {
             'Ajax-Navigation': true,
         },
@@ -356,7 +356,7 @@ An.ProcessOutput = function (options, response)
                 options.container = options.replace; //for scroll option
             } else {
                 $(options.container).html(response.content);
-            }            
+            }
 
             if(options.scroll == true) {
                 $('html, body').animate({
@@ -390,10 +390,10 @@ An.ProcessOutput = function (options, response)
             $(response.notifications[index]).each(function(i, value){
                 var notifyOptions = $.extend({}, An.Options.notify, {type: index});
                 $.notify({
-                    message: value                   
+                    message: value
                 }, notifyOptions);
             });
-        });           
+        });
     }
 
     //call calback function if finish
@@ -519,7 +519,7 @@ $(document).on('show.bs.modal', '.modal', function () {
 /* Ajax Navigation Helpers END */
 
 /* Mutations Observer START */
-$(document).ready(function () {    
+$(document).ready(function () {
     for (var propertyName in An.Mutations) {
         var $elements = $(An.Mutations[propertyName].Selector);
         if ($elements.length > 0) {
@@ -554,7 +554,7 @@ observer.observe(document, config);
 An.Mutations.AjaxNav = {
     Selector: '[data-ajax-nav]',
     Apply: function (elements) {
-        $.each(elements, function (){            
+        $.each(elements, function (){
             if (typeof $(this).attr('href') == 'undefined' && typeof $(this).attr('data-ajax-url') == 'undefined') {
                 if(An.Options.validator) {
                     $(this).validator(An.Options.validator).on('submit', function (e) {
